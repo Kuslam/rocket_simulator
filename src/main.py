@@ -54,11 +54,14 @@ class Rocket:
         return oof
     
     def crashed_into_earth(self):
-        if np.linalg.norm(self.state[0:3]) <= R_EARTH:
+        if self.get_altitude() <= R_EARTH:
             crashed = True
         else:
             crashed = False
         return crashed
+
+    def get_altitude(self):
+        return np.linalg.norm(self.state[0:3])
 
     def update_state(self, state, state_extra=None, track_state=True):
         # Update new state
@@ -125,7 +128,7 @@ def atmospheric_model(position):
         p = 2.488 * ((T + 273.1)/216.6)**(-11.388)
     
     density = p / (0.289*(T+273.1))
-    return density, p, T
+    return density
 
 def forward_step(rocket, state, dt):
     # Get key parameters from state
