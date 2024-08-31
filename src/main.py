@@ -17,66 +17,140 @@ class Rocket:
     - mass_prop: mass of propellant (in kg)
     - Isp: Isp of rocket (in s)
     - thrust: thrust of rocket (in N)
-    - thrust_vector: unit vector of direction thrust occurs in (in ECI)
+    - rocket_vector: unit vector of direction rokcet is pointing (in ECI)
     """
     def __init__(
             self,
             init_state,
             mass_prop,
             Isp,
-            thrust
+            thrust,
+            cd,
+            area
     ):
         self.state = init_state
         self.mass_prop = mass_prop
+        self.mass_struct = self.state[6] - mass_prop
         self.Isp = Isp
         self.thrust = thrust
-        self.thrust_vector = init_state[0:3] / np.linalg.norm(init_state[0:3]) #TODO: replace with quaternions
+        self.rocket_vector = init_state[0:3] / np.linalg.norm(init_state[0:3]) #TODO: replace with quaternions
+        self.cd = cd
+        self.area = area
         self.state_trajectory = []
+        self.extra_trajectory = [] # include extra data here
+        self.has_fuel = True
+        self.has_crashed = False
 
     def reset_state(self, init_state):
         self.state = init_state
         self.state_trajectory = []
+        self.extra_trajectory = []
 
+    def out_of_fuel(self):
+        if self.state[6] > self.mass_struct:
+            oof = False
+        else:
+            oof = True
+        return oof
+    
+    def crashed_into_earth(self):
+        if np.linalg.norm(self.state[0:3]) <= R_EARTH:
+            crashed = True
+        else:
+            crashed = False
+        return crashed
+
+    def update_state(self, state, state_extra=None, track_state=True):
+        # Update new state
+        self.state = state
+
+        # Update state if we are out of fuel/crashed
+        if self.crashed_into_earth():
+            self.has_crashed = True
+
+        if self.out_of_fuel():
+            self.has_fuel = False
+            self.state[6] = self.mass_struct
+            self.thrust = 0
+
+        if track_state:
+            self.state_trajectory.append(state)
+            self.extra_trajectory.append(state_extra)
 
 def create_rocket():
     # Initialize state
-    rx, ry, rz = 916.361e3, -5539.907e3, 3014.812e3 #m
+    # rx, ry, rz = 916.361e3, -5539.907e3, 3014.812e3 #m
+    rx, ry, rz = 0, 0, 6350e3
     vx, vy, vz = 0, 0, 0 #m/s
     mass = 549000 #kg
     mass_struct = 25600 #kg
     mass_prop = mass - mass_struct #kg
     Isp = 292 #s
     thrust = 7600e3 #N
+    cd = 0.75
+    area = np.pi/4 * 3.7**2
 
     init_state = np.array([rx, ry, rz, vx, vy, vz, mass])
 
     rocket = Rocket(init_state=init_state,
                     mass_prop=mass_prop,
                     Isp=Isp,
-                    thrust=thrust)
+                    thrust=thrust,
+                    cd=cd,
+                    area=area)
     
     return rocket
+
+def atmospheric_model(position):
+    """
+    Model of earth's atmosphere
+    source: https://www.grc.nasa.gov/www/k-12/airplane/atmosmet.html
+    """
+
+    altitude = np.linalg.norm(position) - R_EARTH
+    if altitude < 0: altitude = 0
+
+    # Check if over von-karman line
+    if altitude > 100e3: return 0
+
+    # Apply model
+    if altitude < 11000:
+        T = 15.04 - 0.00649*altitude
+        p = 101.29 * ((T + 273.1)/288.08)**5.256
+    elif altitude < 25000:
+        T = -56.46
+        p = 22.65*np.exp(1.73-0.000157*altitude)
+    elif altitude:
+        T = -131.21 + 0.00299*altitude
+        p = 2.488 * ((T + 273.1)/216.6)**(-11.388)
+    
+    density = p / (0.289*(T+273.1))
+    return density, p, T
 
 def forward_step(rocket, state, dt):
     # Get key parameters from state
     r = state[0:3]
+    v = state[3:6]
     mass = state[6]
 
-    # See if we have thrust
-    if mass > 0:
-        thrust = rocket.thrust * rocket.thrust_vector
-    else:
-        thrust = 0 * rocket.thrust_vector
+    # Find thrust
+    thrust = rocket.thrust * rocket.rocket_vector
+
+    # Find drag (opposite of rocket direction)
+    v_drag = np.dot(v,rocket.rocket_vector)
+    if v_drag < 0: v_drag = 0
+    rho = atmospheric_model(r)
+    drag = -0.5 * rho * rocket.area * rocket.cd * v_drag**2
     
     # Find forces on rocket (and net acceleration)
     accel_gravity =  - MU / (np.linalg.norm(r)**3) * r
-    accel_net = rocket.thrust / mass + accel_gravity
+    accel_net = thrust / mass + accel_gravity + drag / mass
 
     # Find change in state
     state_dot = np.zeros(state.shape)
-    state_dot[0:3] = state[3:6] # r_dot = vel
+    state_dot[0:3] = v # r_dot = vel
     state_dot[3:6] = accel_net # v_dot = accel
-    state_dot[6] = np.linalg.norm(thrust) / (G0 * rocket.Isp) # mass_dot = . . . 
+    state_dot[6] = - np.linalg.norm(thrust) / (G0 * rocket.Isp) # mass_dot = . . . 
 
     return state_dot
 
@@ -92,30 +166,37 @@ def rk4(step, state, rocket, dt):
 def simulate_trajectory(rocket, dt, t_final):
     # Initialize loop
     final_iter = int(np.ceil(t_final / dt))
+    t_iter = 0
 
     # Iterate
     for i in range(final_iter):
+        # Find new state
         state_dot = rk4(step=forward_step,
                         state=rocket.state,
                         rocket=rocket,
                         dt=dt)
-        rocket.state = state_dot*dt
+        new_state = rocket.state + state_dot*dt
 
-        # Check if we ran out of fuel
-        if rocket.state[6] < 0:
-            rocket.state[6] = 0
-        
-        rocket.state_trajectory.append(rocket.state)
+        # Update state
+        t_iter += dt
+        rocket.update_state(new_state)
+
+        if rocket.has_crashed:
+            return t_iter
+
+    return t_iter
 
 def main():
     rocket = create_rocket()
     dt = 0.1
-    t_final = 100
+    t_final = 1000
     t_final = t_final - t_final%dt
-    simulate_trajectory(rocket=rocket,
-                        dt=dt,
-                        t_final=t_final)
+    t_final_sim = simulate_trajectory(rocket=rocket,
+                                      dt=dt,
+                                      t_final=t_final)
     
-    vis.create_plots(rocket.state_trajectory, np.linspace(0, t_final, int(t_final/dt)))
+    vis.create_plots(rocket.state_trajectory, np.linspace(0, t_final_sim, int(t_final_sim/dt)))
+
+    print("end")
     
 main()

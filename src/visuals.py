@@ -2,31 +2,47 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 def create_plots(state_trajectories, t):
-    rx = [state[0] for state in state_trajectories]
-    ry = [state[1] for state in state_trajectories]
-    rz = [state[2] for state in state_trajectories]
-    vx = [state[3] for state in state_trajectories]
-    vy = [state[4] for state in state_trajectories]
-    vx = [state[5] for state in state_trajectories]
+    rx = [state[0]/1000 for state in state_trajectories]
+    ry = [state[1]/1000 for state in state_trajectories]
+    rz = [state[2]/1000 for state in state_trajectories]
+    vx = [state[3]/1000 for state in state_trajectories]
+    vy = [state[4]/1000 for state in state_trajectories]
+    vz = [state[5]/1000 for state in state_trajectories]
     m = [state[6] for state in state_trajectories]
+    print(m)
 
     # Create a plot
-    plt.figure(figsize=(10, 6))
+    plt.figure(figsize=(12, 6))
 
-    # Plot rx, ry, and rz over time
-    plt.plot(t, rx, marker='o', linestyle='-', color='r', label='rx')
-    plt.plot(t, ry, marker='s', linestyle='--', color='g', label='ry')
-    plt.plot(t, rz, marker='^', linestyle='-.', color='b', label='rz')
-
-    # Add labels and title
-    plt.xlabel('Time (t)')
-    plt.ylabel('Values')
-    plt.title('Plot of rx, ry, and rz versus Time')
+    # Plot positions
+    plt.subplot(3, 1, 1)
+    plt.plot(t, rx, 'r-', label='rx [km]', linewidth=1.5)
+    plt.plot(t, ry, 'g-', label='ry [km]', linewidth=1.5)
+    plt.plot(t, rz, 'b-', label='rz [km]', linewidth=1.5)
+    plt.xlabel('Time [s]')
+    plt.ylabel('Positions [ECEF]')
     plt.legend()
+    plt.grid(True)
 
-    # Show grid
+    # Plot velocities
+    plt.subplot(3, 1, 2)
+    plt.plot(t, vx, 'r-', label='vx [km/s]', linewidth=1.5)
+    plt.plot(t, vy, 'g-', label='vy [km/s]', linewidth=1.5)
+    plt.plot(t, vz, 'b-', label='vz [km/s]', linewidth=1.5)
+    plt.xlabel('Time [s]')
+    plt.ylabel('Velocties [ECEF]')
+    plt.legend()
+    plt.grid(True)
+
+    # Plot mass
+    plt.subplot(3, 1, 3)
+    plt.plot(t, m, 'r-', label='vx [km/s]', linewidth=1.5)
+    plt.xlabel('Time [s]')
+    plt.ylabel('Mass [kg]')
+    plt.legend()
     plt.grid(True)
 
     # Display the plot
+    plt.subplots_adjust(hspace=0.4)
     plt.show()
     
