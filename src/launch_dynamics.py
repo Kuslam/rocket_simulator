@@ -10,14 +10,14 @@ import visuals as vis
 # General libraries
 import numpy as np
 
-def forward_step(rocket, state, dt, output_extra_state = True):
+def forward_step(rocket, state, dt, t, output_extra_state = True):
     # Get key parameters from state
     r = state[0:3]
     v = state[3:6]
     mass = state[6]
 
     # Find thrust
-    thrust = rocket.stage.thrust * rocket.rocket_vector
+    thrust = rocket.stage.thrust * rocket.get_thrust_vector(t)
 
     # Find drag (opposite of rocket direction)
     v_drag = rocket.get_vel_ECEF()
@@ -42,11 +42,11 @@ def forward_step(rocket, state, dt, output_extra_state = True):
 
     return state_dot, state_extra
 
-def rk4(step, state, rocket, dt):
-    k1, k1e = step(rocket=rocket, state=state, dt=dt)
-    k2, k2e = step(rocket=rocket, state=(state+k1*dt/2), dt = dt/2)
-    k3, k3e = step(rocket=rocket, state=(state+k2*dt/2), dt = dt/2)
-    k4, k4e = step(rocket=rocket, state=(state+k3*dt), dt = dt)
+def rk4(step, state, rocket, dt, t):
+    k1, k1e = step(t=t, rocket=rocket, state=state, dt=dt)
+    k2, k2e = step(t=t+dt/2, rocket=rocket, state=(state+k1*dt/2), dt = dt/2)
+    k3, k3e = step(t=t+dt/2, rocket=rocket, state=(state+k2*dt/2), dt = dt/2)
+    k4, k4e = step(t=t+dt, rocket=rocket, state=(state+k3*dt), dt = dt)
 
     state_dot = k1/6 + k2/3 + k3/3 + k4/6
     state_extra = k1e/6 + k2e/3 + k3e/3 + k4e/6
@@ -63,6 +63,7 @@ def simulate_trajectory(rocket, dt, t_final):
         state_dot, new_state_extra = rk4(step=forward_step,
                                          state=rocket.state,
                                          rocket=rocket,
+                                         t=t_iter,
                                          dt=dt)
         new_state = rocket.state + state_dot*dt
 

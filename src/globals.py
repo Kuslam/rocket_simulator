@@ -33,3 +33,22 @@ def atmospheric_model(position):
     
     density = p / (0.289*(T+273.1))
     return density
+
+def normalize(v):
+    return v / np.linalg.norm(v)
+
+def find_dcm(vec1, vec2):
+    vec1 = normalize(vec1)
+    vec2 = normalize(vec2)
+
+    if np.allclose(vec1, vec2):
+        return np.eye(3)
+
+    v = np.cross(vec1, vec2)
+    s = np.linalg.norm(v)
+    c = np.dot(vec1, vec2)
+    vx = np.array([[0, -v[2], v[1]], [v[2], 0, -v[0]], [-v[1], v[0], 0]])
+
+    dcm = np.eye(3) + vx + vx.dot(vx) * ((1-c)/(s**2))
+
+    return dcm

@@ -1,4 +1,4 @@
-from rocket import Rocket, RocketStage
+from rocket import Rocket, RocketStage, PitchOver
 import numpy as np
 
 def create_rocket():
@@ -31,6 +31,17 @@ def create_rocket():
                          Isp=Isp,
                          thrust=thrust
                          )
+    
+    # Pitchover
+    angle_inclination = np.deg2rad(10) #rad
+    angle_azimuth = np.deg2rad(0) #rad
+    t_start = 10 #s
+    t_burn = 10 #s
+
+    pitchover = PitchOver(angle_inclination=angle_inclination,
+                          angle_azimuth=angle_azimuth,
+                          t_start=t_start,
+                          t_end=t_start+t_burn)
 
     # Assume we launch out of Cape Canaveral
     v_launchpad = np.array([0, 0, 0])
@@ -47,6 +58,7 @@ def create_rocket():
     rocket = Rocket(init_state=init_state,
                     stage1=stage1,
                     stage2=stage2,
+                    pitchover=pitchover,
                     cd=cd,
                     area=area,
                     v_launchpad=v_launchpad)

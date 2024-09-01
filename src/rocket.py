@@ -13,6 +13,16 @@ class RocketStage:
     thrust: float
     Isp: float
 
+@dataclass
+class PitchOver:
+    """
+    Store key values about the pitchover maneuver
+    """
+    angle_inclination: float
+    angle_azimuth: float
+    t_start: float
+    t_end: float
+
 class Rocket:
     """
     Rocket object contains key information about the rocket including:
@@ -30,19 +40,17 @@ class Rocket:
             init_state,
             stage1,
             stage2,
+            pitchover,
             cd,
             area,
             v_launchpad
     ):
         # Initialize given values
         self.state = init_state
-
-        # self.mass_prop = mass_prop
-        # self.mass_struct = self.state[6] - mass_prop
-        # self.Isp = Isp
         
         self.stage1 = stage1
         self.stage2 = stage2
+        self.pitchover = pitchover
 
         self.rocket_vector = init_state[0:3] / np.linalg.norm(init_state[0:3])
         self.v_launchpad = v_launchpad
@@ -113,6 +121,21 @@ class Rocket:
     
     def get_vel_ECEF(self):
         return self.state[3:6] - self.v_launchpad
+    
+    def get_thrust_vector(self, t):
+        if t < self.pitchover.t_start and t > self.pitchover.t_end:
+            # we are not doing a pitchover
+            thrust_vector = self.rocket_vector
+        else:
+            # we are doing a pitchover
+            rocket_vector_rockref = np.array([0, 0, 1]) #rocket reference frame
+            thrust_vector_rocketref = np.array([np.cos(self.pitchover.angle_azimuth) * np.sin(self.pitchover.angle_inclination),
+                                                np.sin(self.pitchover.angle_azimuth) * np.sin(self.pitchover.angle_inclination),
+                                                np.cos(self.pitchover.angle_inclination)]) #rocket reference frame
+            R_rockref2ECI = find_dcm(rocket_vector_rockref, self.rocket_vector)
+            thrust_vector = R_rockref2ECI @ thrust_vector_rocketref
+
+        return thrust_vector
 
     def update_state(self, state, state_extra=None, track_state=True):
         # Update new state
