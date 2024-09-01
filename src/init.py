@@ -1,10 +1,13 @@
 from rocket import Rocket, RocketStage, PitchOver
 import numpy as np
+from globals import X0_PITCHOVER
 
-def create_rocket():
+EXAMPLE_PITCHOVER = PitchOver(X0_PITCHOVER)
+
+def create_rocket(pitchover=EXAMPLE_PITCHOVER):
     # Initialize state
     # Payload
-    mass_payload = 100000 #kg
+    mass_payload = 20000 #kg
 
     # Stage 1
     mass_struct = 25600 #kg
@@ -20,9 +23,10 @@ def create_rocket():
                          )
     
     # Stage 2
-    mass_struct = 3900 #kg    
+    mass_struct = 3900 #kg
+    mass_struct += mass_payload    
     mass_prop = 92670 #kg
-    mass = mass_struct + mass_prop + mass_payload #kg
+    mass = mass_struct + mass_prop #kg
     Isp = 348 #s
     thrust = 981e3 #N
     stage2 = RocketStage(mass=mass,
@@ -32,21 +36,12 @@ def create_rocket():
                          thrust=thrust
                          )
     
-    # Pitchover
-    angle_inclination = np.deg2rad(10) #rad
-    angle_azimuth = np.deg2rad(0) #rad
-    t_start = 10 #s
-    t_burn = 10 #s
-
-    pitchover = PitchOver(angle_inclination=angle_inclination,
-                          angle_azimuth=angle_azimuth,
-                          t_start=t_start,
-                          t_end=t_start+t_burn)
+    # Pitchover is the design variable
 
     # Assume we launch out of Cape Canaveral
     v_launchpad = np.array([0, 0, 0])
 
-    # rx, ry, rz = 916.361e3, -5539.907e3, 3014.812e3 #m
+    # rx, ry, rz = 916.361e3, -5539.907e2, 5014.812e3 #m
     rx, ry, rz = 0, 0, 6350e3
     vx, vy, vz = 0, 0, 0 #m/s
     mass = stage1.mass + stage2.mass #kg

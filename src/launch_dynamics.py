@@ -3,7 +3,6 @@ Main dynamics used during launch
 """
 # Custom libraries
 from globals import *
-from init import create_rocket
 from rocket import Rocket
 import visuals as vis
 
@@ -38,7 +37,9 @@ def forward_step(rocket, state, dt, t, output_extra_state = True):
     state_dot[6] = - np.linalg.norm(thrust) / (G0 * rocket.stage.Isp) # mass_dot = . . . 
 
     # Get extra state data
-    state_extra = np.concatenate([accel_thrust, accel_drag, accel_net, accel_gravity])
+    flight_path_angle = np.array([rocket.get_flight_path_angle(t)])
+    altitude = rocket.get_altitude()
+    state_extra = np.concatenate([accel_thrust, accel_drag, accel_net, accel_gravity, flight_path_angle, altitude], axis=0)
 
     return state_dot, state_extra
 
@@ -72,7 +73,12 @@ def simulate_trajectory(rocket, dt, t_final):
         rocket.update_state(state=new_state,
                             state_extra=new_state_extra)
 
-        if rocket.has_crashed or rocket.too_high:
+        if rocket.has_crashed:
+            print("Simulation terminated because rocket has crashed")
+            return t_iter-dt
+        
+        if rocket.too_high:
+            print("Simulation terminated because rocket is past the Moon")
             return t_iter-dt
 
     return t_iter

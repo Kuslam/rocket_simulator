@@ -1,3 +1,5 @@
+from globals import R_EARTH
+
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -22,12 +24,14 @@ def create_plots(state_trajectory, t, extra_trajectory=None):
     ax_grav = [state[9] for state in extra_trajectory]
     ay_grav = [state[10] for state in extra_trajectory]
     az_grav = [state[11] for state in extra_trajectory]
+    flight_path_angle = [state[12] for state in extra_trajectory]
+    altitude = [state[13] for state in extra_trajectory]
 
     # Create a plot
-    plt.figure(figsize=(15, 6))
+    plt.figure(figsize=(15, 8))
 
     # Plot positions
-    plt.subplot(2, 4, 1)
+    plt.subplot(2, 5, 1)
     plt.plot(t, rx, 'r-', label='rx [km]', linewidth=1.5)
     plt.plot(t, ry, 'g-', label='ry [km]', linewidth=1.5)
     plt.plot(t, rz, 'b-', label='rz [km]', linewidth=1.5)
@@ -36,8 +40,18 @@ def create_plots(state_trajectory, t, extra_trajectory=None):
     plt.legend()
     plt.grid(True)
 
+    # Plot position changes
+    plt.subplot(2, 5, 2)
+    plt.plot(t, rx-rx[0], 'r-', label='rx [km]', linewidth=1.5)
+    plt.plot(t, ry-ry[0], 'g-', label='ry [km]', linewidth=1.5)
+    plt.plot(t, rz-rz[0], 'b-', label='rz [km]', linewidth=1.5)
+    plt.xlabel('Time [s]')
+    plt.title('Changes in Position from Start [ECEF]')
+    plt.legend()
+    plt.grid(True)
+
     # Plot velocities
-    plt.subplot(2, 4, 2)
+    plt.subplot(2, 5, 3)
     plt.plot(t, vx, 'r-', label='vx [km/s]', linewidth=1.5)
     plt.plot(t, vy, 'g-', label='vy [km/s]', linewidth=1.5)
     plt.plot(t, vz, 'b-', label='vz [km/s]', linewidth=1.5)
@@ -47,7 +61,7 @@ def create_plots(state_trajectory, t, extra_trajectory=None):
     plt.grid(True)
 
     # Plot mass
-    plt.subplot(2, 4, 3)
+    plt.subplot(2, 5, 4)
     plt.plot(t, m, 'r-', label='m [kg]', linewidth=1.5)
     plt.xlabel('Time [s]')
     plt.title('Mass')
@@ -56,7 +70,7 @@ def create_plots(state_trajectory, t, extra_trajectory=None):
     plt.grid(True)
 
     # Plot net accelerations
-    plt.subplot(2, 4, 4)
+    plt.subplot(2, 5, 5)
     plt.plot(t, ax_net, 'r-', label='ax [km/s^2]', linewidth=1.5)
     plt.plot(t, ay_net, 'g-', label='ay [km/s^2]', linewidth=1.5)
     plt.plot(t, az_net, 'b-', label='az [km/s^2]', linewidth=1.5)
@@ -66,7 +80,7 @@ def create_plots(state_trajectory, t, extra_trajectory=None):
     plt.grid(True)
 
     # Plot thrust accelerations
-    plt.subplot(2, 4, 5)
+    plt.subplot(2, 5, 6)
     plt.plot(t, ax_thrust, 'r-', label='ax [km/s^2]', linewidth=1.5)
     plt.plot(t, ay_thrust, 'g-', label='ay [km/s^2]', linewidth=1.5)
     plt.plot(t, az_thrust, 'b-', label='az [km/s^2]', linewidth=1.5)
@@ -76,7 +90,7 @@ def create_plots(state_trajectory, t, extra_trajectory=None):
     plt.grid(True)
 
     # Plot drag accelerations
-    plt.subplot(2, 4, 6)
+    plt.subplot(2, 5, 7)
     plt.plot(t, ax_drag, 'r-', label='ax [km/s^2]', linewidth=1.5)
     plt.plot(t, ay_drag, 'g-', label='ay [km/s^2]', linewidth=1.5)
     plt.plot(t, az_drag, 'b-', label='az [km/s^2]', linewidth=1.5)
@@ -86,7 +100,7 @@ def create_plots(state_trajectory, t, extra_trajectory=None):
     plt.grid(True)
 
     # Plot gravity accelerations
-    plt.subplot(2, 4, 7)
+    plt.subplot(2, 5, 8)
     plt.plot(t, ax_grav, 'r-', label='ax [km/s^2]', linewidth=1.5)
     plt.plot(t, ay_grav, 'g-', label='ay [km/s^2]', linewidth=1.5)
     plt.plot(t, az_grav, 'b-', label='az [km/s^2]', linewidth=1.5)
@@ -95,7 +109,23 @@ def create_plots(state_trajectory, t, extra_trajectory=None):
     plt.legend()
     plt.grid(True)
 
+    # Plot flight path angle
+    plt.subplot(2, 5, 9)
+    plt.plot(t, flight_path_angle, 'r-', label='$\phi$ [deg]', linewidth=1.5)
+    plt.xlabel('Time [s]')
+    plt.title('Flight Path Angle')
+    plt.legend()
+    plt.grid(True)
+
+    # Plot altitude
+    plt.subplot(2, 5, 10)
+    plt.plot(t, altitude, 'r-', label='h [km]', linewidth=1.5)
+    plt.xlabel('Time [s]')
+    plt.title('Altitude')
+    plt.legend()
+    plt.grid(True)
+
     # Display the plot
-    # plt.subplots_adjust(hspace=0.4)
+    plt.subplots_adjust(hspace=0.4)
     plt.show()
     

@@ -13,15 +13,19 @@ class RocketStage:
     thrust: float
     Isp: float
 
-@dataclass
 class PitchOver:
     """
     Store key values about the pitchover maneuver
     """
-    angle_inclination: float
-    angle_azimuth: float
-    t_start: float
-    t_end: float
+    def __init__(self,
+                 x_pitchover):
+            self.angle_inclination = x_pitchover[0]
+            self.angle_azimuth = x_pitchover[1]
+            self.t_start = x_pitchover[2]
+            t_burn = x_pitchover[3]
+            self.t_end = t_start + t_burn
+        
+    
 
 class Rocket:
     """
@@ -61,8 +65,7 @@ class Rocket:
         self.stage = stage1
         self.mass_sep = stage1.mass_struct + stage2.mass
         self.state_trajectory = []
-        self.extra_trajectory = [] # include extra data here
-        self.extra_state = np.zeros([1,9]) # acceleration (thrust, drag, net)
+        self.extra_trajectory = [] # include extra data here (e.g acceleration, flight path angle, altitude)
         self.has_separated = False
         self.has_crashed = False
         self.too_high = False
@@ -123,9 +126,9 @@ class Rocket:
         return self.state[3:6] - self.v_launchpad
     
     def get_thrust_vector(self, t):
-        if t < self.pitchover.t_start and t > self.pitchover.t_end:
+        if t < self.pitchover.t_start or t > self.pitchover.t_end:
             # we are not doing a pitchover
-            thrust_vector = self.rocket_vector
+            return self.rocket_vector            
         else:
             # we are doing a pitchover
             rocket_vector_rockref = np.array([0, 0, 1]) #rocket reference frame
@@ -136,6 +139,16 @@ class Rocket:
             thrust_vector = R_rockref2ECI @ thrust_vector_rocketref
 
         return thrust_vector
+    
+    def get_flight_path_angle(self,t):
+        if t == 0: return 0
+
+        # Find the flight path angle
+        r = normalize(self.state[0:3])
+        v = normalize(self.state[3:6])
+        
+        theta = np.rad2deg(np.arccos(np.dot(r,v)))
+        return theta
 
     def update_state(self, state, state_extra=None, track_state=True):
         # Update new state

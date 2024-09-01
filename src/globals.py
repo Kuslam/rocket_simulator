@@ -8,6 +8,17 @@ G0 = 9.81 #m/s
 MU = 3.986e14 #m^3/s^2
 R_EARTH = 6350e3 #m
 
+# Time values
+DT = 1
+T_FINAL = 10000
+
+angle_inclination = np.deg2rad(10) #rad
+angle_azimuth = np.deg2rad(0) #rad
+t_start = 60 #s
+t_burn = 10 #s
+
+X0_PITCHOVER = [angle_inclination, angle_azimuth, t_start, t_burn]
+
 def atmospheric_model(position):
     """
     Model of earth's atmosphere
@@ -41,13 +52,13 @@ def find_dcm(vec1, vec2):
     vec1 = normalize(vec1)
     vec2 = normalize(vec2)
 
-    if np.allclose(vec1, vec2):
-        return np.eye(3)
-
     v = np.cross(vec1, vec2)
     s = np.linalg.norm(v)
     c = np.dot(vec1, vec2)
     vx = np.array([[0, -v[2], v[1]], [v[2], 0, -v[0]], [-v[1], v[0], 0]])
+
+    if np.abs(s) < 1e-3:
+        return np.eye(3)
 
     dcm = np.eye(3) + vx + vx.dot(vx) * ((1-c)/(s**2))
 
