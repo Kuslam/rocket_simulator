@@ -12,7 +12,7 @@ def main():
     rocket = create_rocket()
     dt = 1
     t_final = 10000
-    t_final = t_final - t_final%dt
+    t_final -= t_final%dt
     t_final_sim = simulate_trajectory(rocket=rocket,
                                       dt=dt,
                                       t_final=t_final)

@@ -55,8 +55,7 @@ class Rocket:
         self.state_trajectory = []
         self.extra_trajectory = [] # include extra data here
         self.extra_state = np.zeros([1,9]) # acceleration (thrust, drag, net)
-        self.stage_sep = False
-        self.has_fuel = True
+        self.has_separated = False
         self.has_crashed = False
         self.too_high = False
 
@@ -75,22 +74,24 @@ class Rocket:
         self.stage = self.stage1
 
         # Conditions
-        self.has_fuel = True
         self.has_crashed = False
         self.too_high = False
 
-    def out_of_fuel_s1(self):
-        if self.state[6] > self.mass_sep:
-            oof = False
+    def stage_separation(self):
+        # To conduct stage separation
+        self.stage = self.stage2
+        self.state[6] = self.stage.mass
+        self.has_separated = True
+
+    def out_of_fuel(self):
+        # Stage 1
+        if self.state[6] < self.mass_sep and (not self.has_separated):
+            oof = 1
+        # Stage 2
+        elif self.state[6] < self.stage2.mass_struct and self.has_separated:
+            oof = 2
         else:
-            oof = True
-        return oof
-    
-    def out_of_fuel_s2(self):
-        if self.state[6] > self.stage2.mass_struct:
-            oof = False
-        else:
-            oof = True
+            oof = 0
         return oof
     
     def crashed_into_earth(self):
@@ -124,9 +125,10 @@ class Rocket:
             self.has_crashed = True
             return
 
-        if self.out_of_fuel():
-            self.has_fuel = False
-            self.state[6] = self.stage1.mass_struct
+        if self.out_of_fuel() == 1 and (not self.has_separated):
+            self.stage_separation()
+
+        if self.out_of_fuel() == 2:
             self.stage.thrust = 0
 
         if self.altitutde_too_high():

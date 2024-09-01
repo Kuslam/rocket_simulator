@@ -42,7 +42,7 @@ def create_plots(state_trajectory, t, extra_trajectory=None):
     plt.plot(t, vy, 'g-', label='vy [km/s]', linewidth=1.5)
     plt.plot(t, vz, 'b-', label='vz [km/s]', linewidth=1.5)
     plt.xlabel('Time [s]')
-    plt.title('Velocties [ECEF]')
+    plt.title('Velocities [ECI]')
     plt.legend()
     plt.grid(True)
 
@@ -61,7 +61,7 @@ def create_plots(state_trajectory, t, extra_trajectory=None):
     plt.plot(t, ay_net, 'g-', label='ay [km/s^2]', linewidth=1.5)
     plt.plot(t, az_net, 'b-', label='az [km/s^2]', linewidth=1.5)
     plt.xlabel('Time [s]')
-    plt.title('Net Acceleration [ECEF]')
+    plt.title('Net Acceleration [ECI]')
     plt.legend()
     plt.grid(True)
 
@@ -71,7 +71,7 @@ def create_plots(state_trajectory, t, extra_trajectory=None):
     plt.plot(t, ay_thrust, 'g-', label='ay [km/s^2]', linewidth=1.5)
     plt.plot(t, az_thrust, 'b-', label='az [km/s^2]', linewidth=1.5)
     plt.xlabel('Time [s]')
-    plt.title('Thrust Acceleration [ECEF]')
+    plt.title('Thrust Acceleration [ECI]')
     plt.legend()
     plt.grid(True)
 

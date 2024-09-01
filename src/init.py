@@ -3,6 +3,9 @@ import numpy as np
 
 def create_rocket():
     # Initialize state
+    # Payload
+    mass_payload = 100000 #kg
+
     # Stage 1
     mass_struct = 25600 #kg
     mass_prop = 395700 #kg
@@ -17,9 +20,9 @@ def create_rocket():
                          )
     
     # Stage 2
-    mass_struct = 3900 #kg
+    mass_struct = 3900 #kg    
     mass_prop = 92670 #kg
-    mass = mass_struct + mass_prop #kg
+    mass = mass_struct + mass_prop + mass_payload #kg
     Isp = 348 #s
     thrust = 981e3 #N
     stage2 = RocketStage(mass=mass,
