@@ -7,7 +7,7 @@ EXAMPLE_PITCHOVER = PitchOver(X0_PITCHOVER)
 def create_rocket(pitchover=EXAMPLE_PITCHOVER):
     # Initialize state
     # Payload
-    mass_payload = 19000 #kg
+    mass_payload = 20000 #kg
 
     # Stage 1
     mass_struct = 25600 #kg
