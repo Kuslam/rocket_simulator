@@ -37,8 +37,8 @@ def forward_step(rocket, state, dt, t, output_extra_state = True):
     state_dot[6] = - np.linalg.norm(thrust) / (G0 * rocket.stage.Isp) # mass_dot = . . . 
 
     # Get extra state data
-    flight_path_angle = np.array([rocket.get_flight_path_angle(t)])
-    altitude = rocket.get_altitude()
+    flight_path_angle = np.array([rocket.get_flight_path_angle()])
+    altitude = np.array([rocket.get_altitude()])
     state_extra = np.concatenate([accel_thrust, accel_drag, accel_net, accel_gravity, flight_path_angle, altitude], axis=0)
 
     return state_dot, state_extra
@@ -53,7 +53,7 @@ def rk4(step, state, rocket, dt, t):
     state_extra = k1e/6 + k2e/3 + k3e/3 + k4e/6
     return state_dot, state_extra
 
-def simulate_trajectory(rocket, dt, t_final):
+def simulate_trajectory(rocket, dt, t_final, update_sim=False):
     # Initialize loop
     final_iter = int(np.ceil(t_final / dt))
     t_iter = 0
@@ -74,11 +74,11 @@ def simulate_trajectory(rocket, dt, t_final):
                             state_extra=new_state_extra)
 
         if rocket.has_crashed:
-            print("Simulation terminated because rocket has crashed")
+            if update_sim: print("Simulation terminated because rocket has crashed")
             return t_iter-dt
         
         if rocket.too_high:
-            print("Simulation terminated because rocket is past the Moon")
+            if update_sim: print("Simulation terminated because rocket is past the Moon")
             return t_iter-dt
 
     return t_iter

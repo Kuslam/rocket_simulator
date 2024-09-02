@@ -3,7 +3,7 @@ from globals import R_EARTH
 import numpy as np
 import matplotlib.pyplot as plt
 
-def create_plots(state_trajectory, t, extra_trajectory=None):
+def create_plots(state_trajectory, t, extra_trajectory=None, filepath=None):
     rx = [state[0]/1000 for state in state_trajectory]
     ry = [state[1]/1000 for state in state_trajectory]
     rz = [state[2]/1000 for state in state_trajectory]
@@ -127,5 +127,7 @@ def create_plots(state_trajectory, t, extra_trajectory=None):
 
     # Display the plot
     plt.subplots_adjust(hspace=0.4)
+    if filepath != None:
+        plt.savefig(f"{filepath}/trajectory_plots.png",dpi=600)
     plt.show()
     

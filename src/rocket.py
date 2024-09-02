@@ -19,14 +19,12 @@ class PitchOver:
     """
     def __init__(self,
                  x_pitchover):
-            self.angle_inclination = x_pitchover[0]
-            self.angle_azimuth = x_pitchover[1]
+            self.angle_inclination = np.deg2rad(x_pitchover[0])
+            self.angle_azimuth = np.deg2rad(x_pitchover[1])
             self.t_start = x_pitchover[2]
             t_burn = x_pitchover[3]
             self.t_end = t_start + t_burn
         
-    
-
 class Rocket:
     """
     Rocket object contains key information about the rocket including:
@@ -140,12 +138,14 @@ class Rocket:
 
         return thrust_vector
     
-    def get_flight_path_angle(self,t):
-        if t == 0: return 0
-
+    def get_flight_path_angle(self):
         # Find the flight path angle
         r = normalize(self.state[0:3])
         v = normalize(self.state[3:6])
+
+        # FPA is vero for IC
+        if np.linalg.norm(v) == 0:
+            return 0
         
         theta = np.rad2deg(np.arccos(np.dot(r,v)))
         return theta

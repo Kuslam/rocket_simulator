@@ -12,8 +12,8 @@ R_EARTH = 6350e3 #m
 DT = 1
 T_FINAL = 10000
 
-angle_inclination = np.deg2rad(10) #rad
-angle_azimuth = np.deg2rad(0) #rad
+angle_inclination = 10 #rad
+angle_azimuth = 0 #rad
 t_start = 60 #s
 t_burn = 10 #s
 
@@ -46,7 +46,11 @@ def atmospheric_model(position):
     return density
 
 def normalize(v):
-    return v / np.linalg.norm(v)
+    norm = np.linalg.norm(v)
+    if norm == 0:
+        return v
+    else:
+        return v / np.linalg.norm(v)
 
 def find_dcm(vec1, vec2):
     vec1 = normalize(vec1)
