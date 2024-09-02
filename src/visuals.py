@@ -10,7 +10,7 @@ def create_plots(state_trajectory, t, extra_trajectory=None, filepath=None):
     vx = [state[3]/1000 for state in state_trajectory]
     vy = [state[4]/1000 for state in state_trajectory]
     vz = [state[5]/1000 for state in state_trajectory]
-    m = [state[6]/1000 for state in state_trajectory]
+    m = [state[6] for state in state_trajectory]
 
     ax_thrust = [state[0] for state in extra_trajectory]
     ay_thrust = [state[1] for state in extra_trajectory]
@@ -65,7 +65,6 @@ def create_plots(state_trajectory, t, extra_trajectory=None, filepath=None):
     plt.plot(t, m, 'r-', label='m [kg]', linewidth=1.5)
     plt.xlabel('Time [s]')
     plt.title('Mass')
-    plt.ylabel('x 1e3')
     plt.legend()
     plt.grid(True)
 
