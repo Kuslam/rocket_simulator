@@ -38,11 +38,12 @@ def create_rocket(pitchover=EXAMPLE_PITCHOVER):
     
     # Pitchover is the design variable
 
-    # Assume we launch out of Cape Canaveral
-    v_launchpad = np.array([0, 0, 0])
+    # Assume we launch out of Cape Canaveral (at midnight EST)
+    v_launchpad = np.array([222, 70, -402])
+    rx, ry, rz = 6377435, -1078282, 1329213 #m
 
-    # rx, ry, rz = 916.361e3, -5539.907e2, 5014.812e3 #m
-    rx, ry, rz = 0, 0, 6350e3
+    # v_launchpad = np.array([0, 0, 0])
+    # rx, ry, rz = 0, 0, 6350e3
     vx, vy, vz = 0, 0, 0 #m/s
     mass = stage1.mass + stage2.mass #kg
     cd = 0.75

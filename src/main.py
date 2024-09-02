@@ -31,11 +31,11 @@ def optimization_function(x_pitchover):
     return cost_function
 
 def main():
-    x_bounds = opt.Bounds(lb=[0, 0, 0, 0],
-                          ub=[15, 1e-8, 60, 10])
+    x_bounds = opt.Bounds(lb=[0, 0, 10, 0],
+                          ub=[15, 360, 40, 20])
     results = opt.dual_annealing(func=optimization_function,
                                  bounds=x_bounds,
-                                 maxiter=10)
+                                 maxiter=1)
 
     # Simulate best rocket
     x_best = results.x
