@@ -35,7 +35,7 @@ def main():
                           ub=[15, 1e-8, 60, 10])
     results = opt.dual_annealing(func=optimization_function,
                                  bounds=x_bounds,
-                                 maxiter=1)
+                                 maxiter=10)
 
     # Simulate best rocket
     x_best = results.x
