@@ -25,7 +25,7 @@ def create_plots(state_trajectory, t, extra_trajectory=None, filepath=None):
     ay_grav = [state[10] for state in extra_trajectory]
     az_grav = [state[11] for state in extra_trajectory]
     flight_path_angle = [state[12] for state in extra_trajectory]
-    altitude = [state[13] for state in extra_trajectory]
+    altitude = [state[13]/1000 for state in extra_trajectory]
 
     # Create a plot
     plt.figure(figsize=(15, 8))
@@ -70,9 +70,9 @@ def create_plots(state_trajectory, t, extra_trajectory=None, filepath=None):
 
     # Plot net accelerations
     plt.subplot(2, 5, 5)
-    plt.plot(t, ax_net, 'r-', label='ax [km/s^2]', linewidth=1.5)
-    plt.plot(t, ay_net, 'g-', label='ay [km/s^2]', linewidth=1.5)
-    plt.plot(t, az_net, 'b-', label='az [km/s^2]', linewidth=1.5)
+    plt.plot(t, ax_net, 'r-', label='ax [m/s^2]', linewidth=1.5)
+    plt.plot(t, ay_net, 'g-', label='ay [m/s^2]', linewidth=1.5)
+    plt.plot(t, az_net, 'b-', label='az [m/s^2]', linewidth=1.5)
     plt.xlabel('Time [s]')
     plt.title('Net Acceleration [ECI]')
     plt.legend()
@@ -80,9 +80,9 @@ def create_plots(state_trajectory, t, extra_trajectory=None, filepath=None):
 
     # Plot thrust accelerations
     plt.subplot(2, 5, 6)
-    plt.plot(t, ax_thrust, 'r-', label='ax [km/s^2]', linewidth=1.5)
-    plt.plot(t, ay_thrust, 'g-', label='ay [km/s^2]', linewidth=1.5)
-    plt.plot(t, az_thrust, 'b-', label='az [km/s^2]', linewidth=1.5)
+    plt.plot(t, ax_thrust, 'r-', label='ax [m/s^2]', linewidth=1.5)
+    plt.plot(t, ay_thrust, 'g-', label='ay [m/s^2]', linewidth=1.5)
+    plt.plot(t, az_thrust, 'b-', label='az [m/s^2]', linewidth=1.5)
     plt.xlabel('Time [s]')
     plt.title('Thrust Acceleration [ECI]')
     plt.legend()
@@ -90,9 +90,9 @@ def create_plots(state_trajectory, t, extra_trajectory=None, filepath=None):
 
     # Plot drag accelerations
     plt.subplot(2, 5, 7)
-    plt.plot(t, ax_drag, 'r-', label='ax [km/s^2]', linewidth=1.5)
-    plt.plot(t, ay_drag, 'g-', label='ay [km/s^2]', linewidth=1.5)
-    plt.plot(t, az_drag, 'b-', label='az [km/s^2]', linewidth=1.5)
+    plt.plot(t, ax_drag, 'r-', label='ax [m/s^2]', linewidth=1.5)
+    plt.plot(t, ay_drag, 'g-', label='ay [m/s^2]', linewidth=1.5)
+    plt.plot(t, az_drag, 'b-', label='az [m/s^2]', linewidth=1.5)
     plt.xlabel('Time [s]')
     plt.title('Drag Acceleration [ECEF]')
     plt.legend()
@@ -100,9 +100,9 @@ def create_plots(state_trajectory, t, extra_trajectory=None, filepath=None):
 
     # Plot gravity accelerations
     plt.subplot(2, 5, 8)
-    plt.plot(t, ax_grav, 'r-', label='ax [km/s^2]', linewidth=1.5)
-    plt.plot(t, ay_grav, 'g-', label='ay [km/s^2]', linewidth=1.5)
-    plt.plot(t, az_grav, 'b-', label='az [km/s^2]', linewidth=1.5)
+    plt.plot(t, ax_grav, 'r-', label='ax [m/s^2]', linewidth=1.5)
+    plt.plot(t, ay_grav, 'g-', label='ay [m/s^2]', linewidth=1.5)
+    plt.plot(t, az_grav, 'b-', label='az [m/s^2]', linewidth=1.5)
     plt.xlabel('Time [s]')
     plt.title('Gravity Acceleration [ECEF]')
     plt.legend()
